@@ -112,4 +112,4 @@ Environment variables: add any secrets or configuration to `FastAPI/.env` and lo
 
 ## License
 
-This project currently does not specify a license. Consider adding one if you plan to share or publish the code.
+This project is licensed under the MIT License. See the LICENSE file for details.
