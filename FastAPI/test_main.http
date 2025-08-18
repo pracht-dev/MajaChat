@@ -1,0 +1,23 @@
+# Test your FastAPI endpoints
+
+GET http://127.0.0.1:8000/
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/hello/User
+Accept: application/json
+
+###
+
+# Requires OPENAI_API_KEY set in the server environment
+POST http://127.0.0.1:8000/chat
+Content-Type: application/json
+
+{
+  "prompt": "Say hello in one short sentence.",
+  "model": "gpt-4o-mini",
+  "temperature": 0.3
+}
+
+###
