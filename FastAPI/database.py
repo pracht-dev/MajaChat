@@ -69,6 +69,6 @@ def store_messages(request_data, response_data):
 
 # Reset messages
 def reset_messages():
-    # overwrite current file with empty json
-    open("stored_data.json", "w").close()
-    ...
+    # overwrite current file with an empty JSON object {}
+    with open("stored_data.json", "w") as f:
+        json.dump({}, f)

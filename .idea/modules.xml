@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/FastAPI/FastAPI.iml" filepath="$PROJECT_DIR$/FastAPI/FastAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/MajaChat.iml" filepath="$PROJECT_DIR$/MajaChat.iml" />
-      <module fileurl="file://$PROJECT_DIR$/react/react.iml" filepath="$PROJECT_DIR$/react/react.iml" />
+      <module fileurl="file://$PROJECT_DIR$/react-frontend/react-frontend.iml" filepath="$PROJECT_DIR$/react-frontend/react-frontend.iml" />
     </modules>
   </component>
 </project>
