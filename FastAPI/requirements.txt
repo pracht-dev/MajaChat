@@ -5,3 +5,5 @@ pydantic>=2.7.0
 python-decouple>=3.8
 python-multipart>=0.0.20
 requests>=2.32.4
+faster-whisper>=1.2.0
+torch>=2.8.0
