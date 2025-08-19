@@ -1,0 +1,10 @@
+[
+    {
+        "role": "user",
+        "content": "Hello, how are you doing today? This is me again. Life is not easy, keep fighting, do your best and become your best."
+    },
+    {
+        "role": "assistant",
+        "content": "Hi Glory! I'm doing well, thanks. Life is a debug process, isn't it? Now, can you tell me about your favorite programming language?"
+    }
+]

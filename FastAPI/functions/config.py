@@ -15,3 +15,6 @@ OPENAI_ORG = config("OPENAI_ORG")
 
 # Google Gemini API key
 GEMINI_API_KEY = config("GEMINI_API_KEY")
+
+# ElevenLabs API key
+ELEVENLABS_API_KEY = config("ELEVENLABS_API_KEY")
