@@ -5,9 +5,10 @@ from typing import Any
 from openai import OpenAI
 
 from functions.config import OPENAI_API_KEY
+from functions.transcription import TranscriptionService
 
 
-class OpenAITranscriptionService:
+class OpenAITranscriptionService(TranscriptionService):
     """
     Adapter: Cloud transcription using OpenAI's Whisper API.
     Input is always an UploadFile from the React frontend.
@@ -18,6 +19,7 @@ class OpenAITranscriptionService:
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY not set, but TRANSCRIBER=openai was selected.")
         self.client = OpenAI(api_key=api_key)
+        self.model = "whisper-1"
 
     def transcribe(self, audio_file: Any) -> str | None:
         """
@@ -30,8 +32,8 @@ class OpenAITranscriptionService:
             # audio_file.file.seek(0)  # make sure pointer is at the beginning
 
             transcript = self.client.audio.transcriptions.create(
-                model="whisper-1",
-                file=audio_file.file
+                model=self.model,
+                file=audio_file
             )
             return getattr(transcript, "text", None)
 

@@ -2,13 +2,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Custom Function Imports
+from functions.transcriber_gemini import GeminiTranscriptionService
 from functions.transcriber_local import LocalWhisperTranscriptionService
+
+# Custom Function Imports
 
 # ...
 
 app = FastAPI(title="MajaChat API", version="0.1.0")
-transcribe = LocalWhisperTranscriptionService()  # or OpenAITranscriptionService()
+# transcribe = GeminiTranscriptionService()
+transcribe = LocalWhisperTranscriptionService()
+# transcribe = OpenAITranscriptionService()
 
 # CORS - Origins
 origins = [
