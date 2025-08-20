@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import type { ChatMsg } from './Controller';
 
 type Props = {
-  setMessages: any;
+  setMessages: React.Dispatch<React.SetStateAction<ChatMsg[]>>;
+  clearMessages: () => void;
 };
 
-export default function Title({ setMessages }) {
+export default function Title({ setMessages, clearMessages }: Props) {
   const [isResetting, setIsResetting] = useState(false);
 
   const resetConversation = async () => {
@@ -15,17 +17,18 @@ export default function Title({ setMessages }) {
       .then(res => {
         if (res.status === 200) {
           setMessages([]);
+          clearMessages();
         }
       })
       .catch(err => {
-        console.error('There was an error resetting the conversation');
+        console.error('There was an error resetting the conversation', err.message);
       });
 
     setIsResetting(false);
   };
   return (
     <div className="flex justify-between items-center w-full p-4 bg-gray-900 text-white font-bold shadow-2xs">
-      <div className="italic">Maja</div>
+      <div className="italic">Maja VoiceChat</div>
       <button
         onClick={resetConversation}
         className={

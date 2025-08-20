@@ -1,86 +1,200 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Title from './Title';
 import { RecordMessage } from './RecordMessage';
 import axios from 'axios';
 
+export type ChatMsg = {
+  id: string;
+  sender: 'me' | 'maja' | 'system' | string;
+  blobUrl: string;
+};
+
+function generateId(prefix = 'msg') {
+  const ts = Date.now();
+  const rnd = Math.random().toString(36).slice(2, 11); // 9 chars
+  return `${prefix}-${ts}-${rnd}`;
+}
+
 export default function Controller() {
   const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const isHandlingRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const createBlobUrl = (data: BlobPart | BlobPart[]) => {
+  // --- Blob URL lifecycle management ----------------------------------------
+  // Track previous set of blob URLs; revoke any URLs that disappear from state.
+  const prevUrlsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const current = new Set(messages.map(m => m.blobUrl));
+    const prev = prevUrlsRef.current;
+
+    // Revoke URLs that are no longer present in messages
+    for (const url of prev) {
+      if (!current.has(url)) {
+        URL.revokeObjectURL(url);
+      }
+    }
+    prevUrlsRef.current = current;
+  }, [messages]);
+
+  // On unmount, revoke any remaining URLs (last line of defense)
+  useEffect(() => {
+    return () => {
+      for (const url of prevUrlsRef.current) {
+        URL.revokeObjectURL(url);
+      }
+      prevUrlsRef.current.clear();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  // --- Helpers ---------------------------------------------------------------
+  const createBlobUrl = useCallback((data: BlobPart | BlobPart[]) => {
     const blob =
       data instanceof Blob
         ? data
         : new Blob(Array.isArray(data) ? data : [data], { type: 'audio/mpeg' });
     return URL.createObjectURL(blob);
-  };
-
-  const handleStop = useCallback(async (blobUrl: string) => {
-    setIsLoading(true);
-
-    try {
-      // Add user message
-      setMessages(prev => [...prev, { sender: 'me', blobUrl }]);
-
-      // Convert blobUrl to Blob
-      const recordedBlob = await fetch(blobUrl).then(r => r.blob());
-
-      // Send to backend
-      const formData = new FormData();
-      formData.append('file', recordedBlob, 'recording.webm');
-
-      const res = await axios.post('http://localhost:8000/post-audio', formData, {
-        responseType: 'arraybuffer',
-      });
-
-      // Response audio
-      const serverAudioBlob = new Blob([res.data], { type: 'audio/mpeg' });
-      const serverAudioUrl = createBlobUrl(serverAudioBlob);
-
-      setMessages(prev => [...prev, { sender: 'maja', blobUrl: serverAudioUrl }]);
-
-      const audio = new Audio(serverAudioUrl);
-      await audio.play();
-    } catch (err) {
-      console.error('There was an error sending the audio', (err as any)?.message || err);
-    } finally {
-      setIsLoading(false);
-    }
   }, []);
 
+  const clearMessages = useCallback(() => {
+    setMessages([]); // removed URLs will be auto-revoked by the messages effect
+  }, []);
+
+  // Optional: keep memory bounded (e.g., max 50 messages)
+  const appendMessage = useCallback((msg: Omit<ChatMsg, 'id'>) => {
+    setMessages(prev => {
+      const next = [...prev, { id: generateId(), ...msg }];
+      const MAX = 50;
+      if (next.length <= MAX) return next;
+
+      // Drop oldest; its URL will be revoked by the messages effect
+      return next.slice(next.length - MAX);
+    });
+  }, []);
+
+  // --- Core flow: handleStop -------------------------------------------------
+  const handleStop = useCallback(
+    async (blobUrl: string) => {
+      if (isHandlingRef.current) {
+        console.warn('Handler already processing, ignoring duplicate call');
+        return;
+      }
+
+      isHandlingRef.current = true;
+      setIsLoading(true);
+
+      try {
+        // De-dupe same last "me" message
+        setMessages(prev => {
+          const last = prev[prev.length - 1];
+          if (last && last.sender === 'me' && last.blobUrl === blobUrl) return prev;
+          return [...prev, { id: generateId(), sender: 'me', blobUrl }];
+        });
+
+        // Fetch local blob back from its object URL
+        const response = await fetch(blobUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch blob: ${response.status} ${response.statusText}`);
+        }
+        const recordedBlob = await response.blob();
+
+        // Send to backend; expect raw MP3 bytes in response
+        const formData = new FormData();
+        formData.append('file', recordedBlob, 'recording.webm');
+
+        const res = await axios.post('http://localhost:8000/post-audio', formData, {
+          responseType: 'arraybuffer',
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 30000,
+        });
+
+        if (res.status !== 200) {
+          throw new Error(`Server returned status ${res.status}`);
+        }
+
+        // Convert server response to Blob URL
+        const serverAudioBlob = new Blob([res.data], { type: 'audio/mpeg' });
+        const serverAudioUrl = createBlobUrl(serverAudioBlob);
+
+        appendMessage({ sender: 'maja', blobUrl: serverAudioUrl });
+
+        // Auto-play reply
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        const audio = new Audio(serverAudioUrl);
+        audio.preload = 'metadata';
+        audioRef.current = audio;
+
+        await audio.play().catch(err => {
+          console.warn('Auto-play failed:', err);
+        });
+      } catch (err) {
+        console.error('Error sending audio:', err);
+      } finally {
+        setIsLoading(false);
+        isHandlingRef.current = false;
+      }
+    },
+    [appendMessage, createBlobUrl]
+  );
+
+  // --- Render ---------------------------------------------------------------
   return (
     <div className="h-screen overflow-hidden">
-      <Title setMessages={setMessages} />
-      <div className="flex flex-col justify-between overflow-y-scroll pb-96">
-        <div className="mt-5 px-5 space-y-4">
-          {messages.map((msg, index) => {
+      <Title setMessages={setMessages} clearMessages={clearMessages} />
+
+      <div className="flex flex-col justify-between h-[calc(100vh-56px)]">
+        {/* messages area */}
+        <div className="flex-1  overflow-y-scroll mt-5 mb-20 px-10 space-y-4 pb-40">
+          {messages.map(msg => {
             const isMe = msg.sender === 'me';
+            const isSystem = msg.sender === 'system';
+
             return (
               <div
-                key={index}
-                className={`flex ${isMe ? 'justify-end text-blue-700' : 'justify-start text-pink-400'}`}
+                key={msg.id}
+                className={`flex ${isMe ? 'justify-end text-blue-700 text-right' : 'justify-start ml-2 text-pink-500'}`}
               >
-                <div className="max-w-xs rounded-lg p-2 ">
-                  <p className="text-xs italic mb-1">{isMe ? 'Me' : msg.sender}</p>
-                  <audio src={msg.blobUrl} controls className="w-48" />
+                <div className="max-w-xs">
+                  <p className="text-[11px] opacity-80 italic mx-4 mb-1">{msg.sender}</p>
+                  {isSystem ? (
+                    <p className="text-sm">Error processing audio. Please try again.</p>
+                  ) : (
+                    <audio
+                      key={msg.blobUrl}
+                      src={msg.blobUrl}
+                      controls
+                      preload="metadata"
+                      className="appearance-none"
+                    />
+                  )}
                 </div>
               </div>
             );
           })}
-          {messages.length == 0 && !isLoading && (
+
+          {/* Empty-state hint only when not loading */}
+          {messages.length === 0 && !isLoading && (
             <div className="text-center font-light italic mt-10">Send Maja a message...</div>
           )}
 
-          {!isLoading && (
+          {/* Loading hint only while loading */}
+          {isLoading && (
             <div className="text-center font-light italic mt-10 animate-pulse">
               Gimme a few seconds...
             </div>
           )}
         </div>
 
-        <div className="fixed bottom-0 w-full py-6 border-t text-center bg-gradient-to-r from-pink-500 to-purple-500 text-white">
-          <div className="flex justify-center items-center w-full">
-            <RecordMessage handleStop={handleStop} isLoading={isLoading} />
+        {/* composer */}
+        <div className="fixed bottom-0 left-0 right-0 py-6 border-t text-center bg-gradient-to-r from-pink-500 to-purple-500 text-white">
+          <div className="flex justify-center items-center w-full gap-3">
+            <RecordMessage handleStop={handleStop} />
           </div>
         </div>
       </div>

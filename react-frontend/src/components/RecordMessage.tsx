@@ -22,7 +22,11 @@ export function RecordMessage({ handleStop }: Props) {
                 classText={status == 'recording' ? 'animate-pulse text-red-500' : 'text-sky-500'}
               />
             </button>
-            <p className="mt-2 text-white font-light">{status}</p>
+            {status && status === 'recording' ? (
+              <p className="mt-2 text-white font-light">{status}</p>
+            ) : (
+              <p className="mt-2 text-white font-light">Hold to record</p>
+            )}
           </div>
         )}
       />
