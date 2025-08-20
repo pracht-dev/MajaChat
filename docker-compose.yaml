@@ -1,0 +1,27 @@
+
+services:
+  api:
+    build:
+      context: ./fastapi
+    env_file:
+      - ./fastapi/.env
+    container_name: fastapi
+    ports:
+      - "8000:8000"
+    networks:
+      - appnet
+
+  web:
+    build:
+      context: ./react-frontend
+    container_name: web
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge

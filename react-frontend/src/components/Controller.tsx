@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Title from './Title';
 import { RecordMessage } from './RecordMessage';
-import axios from 'axios';
+import { postAudio } from '../lib/api';
 
 export type ChatMsg = {
   id: string;
@@ -116,11 +116,7 @@ export default function Controller() {
         const formData = new FormData();
         formData.append('file', recordedBlob, 'recording.webm');
 
-        const res = await axios.post('http://localhost:8000/post-audio', formData, {
-          responseType: 'arraybuffer',
-          headers: { 'Content-Type': 'multipart/form-data' },
-          timeout: 30000,
-        });
+        const res = await postAudio(formData);
 
         if (res.status !== 200) {
           throw new Error(`Server returned status ${res.status}`);
