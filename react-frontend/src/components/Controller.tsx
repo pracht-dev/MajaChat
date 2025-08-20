@@ -21,14 +21,15 @@ export default function Controller() {
   const isHandlingRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // === Auto-scroll container ref
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
   // --- Blob URL lifecycle management ----------------------------------------
-  // Track previous set of blob URLs; revoke any URLs that disappear from state.
   const prevUrlsRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     const current = new Set(messages.map(m => m.blobUrl));
     const prev = prevUrlsRef.current;
 
-    // Revoke URLs that are no longer present in messages
     for (const url of prev) {
       if (!current.has(url)) {
         URL.revokeObjectURL(url);
@@ -37,7 +38,6 @@ export default function Controller() {
     prevUrlsRef.current = current;
   }, [messages]);
 
-  // On unmount, revoke any remaining URLs (last line of defense)
   useEffect(() => {
     return () => {
       for (const url of prevUrlsRef.current) {
@@ -51,6 +51,17 @@ export default function Controller() {
     };
   }, []);
 
+  // --- Auto-scroll whenever messages change ---------------------------------
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const behavior: ScrollBehavior = prefersReduced ? 'auto' : 'smooth';
+
+    el.scrollTo({ top: el.scrollHeight, behavior });
+  }, [messages]);
+
   // --- Helpers ---------------------------------------------------------------
   const createBlobUrl = useCallback((data: BlobPart | BlobPart[]) => {
     const blob =
@@ -61,7 +72,8 @@ export default function Controller() {
   }, []);
 
   const clearMessages = useCallback(() => {
-    setMessages([]); // removed URLs will be auto-revoked by the messages effect
+    // removed URLs will be auto-revoked by the messages effect
+    setMessages([]);
   }, []);
 
   // Optional: keep memory bounded (e.g., max 50 messages)
@@ -70,8 +82,6 @@ export default function Controller() {
       const next = [...prev, { id: generateId(), ...msg }];
       const MAX = 50;
       if (next.length <= MAX) return next;
-
-      // Drop oldest; its URL will be revoked by the messages effect
       return next.slice(next.length - MAX);
     });
   }, []);
@@ -150,7 +160,10 @@ export default function Controller() {
 
       <div className="flex flex-col justify-between h-[calc(100vh-56px)]">
         {/* messages area */}
-        <div className="flex-1  overflow-y-scroll mt-5 mb-20 px-10 space-y-4 pb-40">
+        <div
+          ref={containerRef}
+          className="flex-1 overflow-y-scroll mt-5 mb-20 px-10 space-y-4 pb-40"
+        >
           {messages.map(msg => {
             const isMe = msg.sender === 'me';
             const isSystem = msg.sender === 'system';
