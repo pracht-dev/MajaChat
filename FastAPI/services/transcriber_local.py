@@ -3,8 +3,8 @@ from typing import Any
 
 from faster_whisper import WhisperModel
 
-from functions.config import WHISPER_MODEL
-from functions.transcription import TranscriptionService
+from services.config import WHISPER_MODEL
+from services.transcription import TranscriptionService
 
 
 class LocalWhisperTranscriptionService(TranscriptionService):

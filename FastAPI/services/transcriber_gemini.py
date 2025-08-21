@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import io
 from typing import Any
 
 from google import genai
 from google.genai import types
 
-from functions.config import GEMINI_API_KEY  # füge diese Konstante zu deiner config hinzu (oder nutze Env)
-from functions.transcription import TranscriptionService
+from services.config import GEMINI_API_KEY  # füge diese Konstante zu deiner config hinzu (oder nutze Env)
+from services.transcription import TranscriptionService
 
 
 class GeminiTranscriptionService(TranscriptionService):

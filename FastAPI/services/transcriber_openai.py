@@ -4,9 +4,9 @@ from typing import Any
 
 from openai import OpenAI
 
-from database import get_recent_message
-from functions.config import OPENAI_API_KEY
-from functions.transcription import TranscriptionService
+from database import MessageStore
+from services.config import OPENAI_API_KEY
+from services.transcription import TranscriptionService
 
 
 class OpenAITranscriptionService(TranscriptionService):
@@ -15,12 +15,13 @@ class OpenAITranscriptionService(TranscriptionService):
     Input is always an UploadFile from the React frontend.
     """
 
-    def __init__(self):
+    def __init__(self, msg_store: MessageStore):
         api_key = OPENAI_API_KEY
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY not set, but TRANSCRIBER=openai was selected.")
         self.client = OpenAI(api_key=api_key)
         self.model = "gpt-4o-mini-transcribe"
+        self._msg_store = msg_store
 
     def transcribe(self, audio_file: Any) -> str | None:
         """
@@ -45,7 +46,7 @@ class OpenAITranscriptionService(TranscriptionService):
     # OpenAI - ChatGPT
     # Get Response to our message
     def get_chatgpt_response(self, message_input):
-        messages = get_recent_message()
+        messages = self._msg_store.get_recent_messages()
         user_message = {"role": "user", "content": message_input}
         messages.append(user_message)
         try:

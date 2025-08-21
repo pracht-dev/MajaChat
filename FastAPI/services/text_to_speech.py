@@ -1,6 +1,6 @@
-from elevenlabs import ElevenLabs, play
+from elevenlabs import ElevenLabs
 
-from functions.config import ELEVENLABS_API_KEY
+from services.config import ELEVENLABS_API_KEY
 
 
 class TextToSpeech:

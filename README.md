@@ -20,7 +20,7 @@ A simple full-stack starter project combining a FastAPI backend and a React (Vit
    ├─ vite.config.ts
    └─ src/
       ├─ main.tsx
-      ├─ App.tsx
+      ├─ AppLayout.tsx
       └─ index.css
 ```
 

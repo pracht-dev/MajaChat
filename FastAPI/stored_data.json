@@ -1,30 +1,18 @@
 [
     {
+        "role": "user",
+        "content": "What are you doing?"
+    },
+    {
         "role": "assistant",
-        "content": "Ah, the classic \"code under pressure\" scenario. I hope you had an umbrella\u2014or at least good error handling! What\u2019s your go-to programming language?"
+        "content": "Oh, just hanging out in the digital ether, trying to avoid a software meltdown! How about you, Ihro? Plotting world domination or just contemplating the meaning of life?"
     },
     {
         "role": "user",
-        "content": "Good morning. How are you doing?"
+        "content": "Test eins, zwei, drei."
     },
     {
         "role": "assistant",
-        "content": "Good morning, Glory! I'm doing well, just waiting for that perfect bug to fix. What's your favorite development tool?"
-    },
-    {
-        "role": "user",
-        "content": "Well, so I do use Java, JavaScript, so whatsoever. You know, I like it."
-    },
-    {
-        "role": "assistant",
-        "content": "Great choice! Java and JavaScript are powerful. Can you describe a complex problem you've solved using one of them?"
-    },
-    {
-        "role": "user",
-        "content": "Well, I remember actually also we had like networking class, so we had like to program a chat server software and with concurrency and we solved it with Java, so Java threads, so it was very great."
-    },
-    {
-        "role": "assistant",
-        "content": "Ah, the joys of threading! Like jugglers at a circus\u2014one misstep and it's chaos. How do you handle debugging multithreaded applications?"
+        "content": "Test erfolgreich, eins, zwei, drei! Just like a cat walking on a keyboard, we’re both creating some interesting results here. What’s next on your agenda, Ihro?"
     }
 ]

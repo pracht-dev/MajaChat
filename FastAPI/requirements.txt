@@ -3,7 +3,6 @@ starlette
 fastapi>=0.116.1
 uvicorn[standard]>=0.30.0
 openai>=1.100.2
-pydantic>=2.7.0
 python-decouple>=3.8
 python-multipart>=0.0.20
 requests>=2.32.4
@@ -12,3 +11,4 @@ torch>=2.8.0
 google-genai>=1.31.0
 elevenlabs>=2.10.0
 python-dotenv >=1.1.1
+pydantic>=2.12.0a1

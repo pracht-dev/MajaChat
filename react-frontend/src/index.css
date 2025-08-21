@@ -1,5 +1,87 @@
+/* src/index.css */
 @import "tailwindcss";
 
-body {
-    @apply  min-w-80 min-h-screen;
+html, body {
+    @apply h-full w-full overflow-hidden;
+}
+
+/* Perfect invisible scrollbar but keeps functionality */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+
+/* Smooth scrolling */
+.scrollbar-hide {
+    scroll-behavior: smooth;
+}
+
+/*/!* Add to your index.css *!*/
+/*input[type="range"] {*/
+/*    @apply appearance-none bg-transparent cursor-pointer;*/
+/*}*/
+
+/*input[type="range"]::-webkit-slider-track {*/
+/*    @apply h-2 rounded-full;*/
+/*}*/
+
+/*input[type="range"]::-webkit-slider-thumb {*/
+/*    @apply appearance-none w-4 h-4 rounded-full border-2 border-white shadow-lg;*/
+/*}*/
+
+/*input[type="range"]::-moz-range-track {*/
+/*    @apply h-2 rounded-full;*/
+/*}*/
+
+/*input[type="range"]::-moz-range-thumb {*/
+/*    @apply w-4 h-4 rounded-full border-2 border-white bg-white shadow-lg cursor-pointer;*/
+/*}*/
+
+/* Custom slider colors for user messages */
+.bg-gradient-to-r.from-blue-500.to-blue-600 [type="range"]::-webkit-slider-track {
+    @apply bg-blue-400/50;
+}
+
+.bg-gradient-to-r.from-blue-500.to-blue-600 [type="range"]::-webkit-slider-thumb {
+    @apply bg-white;
+}
+
+/* Custom slider colors for assistant messages */
+.bg-white [type="range"]::-webkit-slider-track {
+    @apply bg-gray-200;
+}
+
+.bg-white [type="range"]::-webkit-slider-thumb {
+    @apply bg-pink-500 border-pink-500;
+}
+
+/* Custom animations */
+@keyframes wave {
+    0%, 100% { transform: scaleY(0.5); }
+    50% { transform: scaleY(1); }
+}
+
+.animate-wave {
+    animation: wave 1s ease-in-out infinite;
+}
+
+.animate-wave:nth-child(2) { animation-delay: 0.2s; }
+.animate-wave:nth-child(3) { animation-delay: 0.4s; }
+
+/* Glass morphism effect */
+.glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+}
+
+/* Custom gradient backgrounds */
+.gradient-chat-user {
+    @apply bg-gradient-to-r from-blue-500 to-blue-600;
+}
+
+.gradient-chat-assistant {
+    @apply bg-gradient-to-r from-pink-500 to-purple-600;
 }
