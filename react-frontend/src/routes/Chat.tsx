@@ -286,9 +286,7 @@ export default function Chat() {
             onClick={() => audio.toggle(id, url)}
             className={[
               'p-3 rounded-full transition',
-              isMe
-                ? 'bg-blue-700 hover:bg-blue-800'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-700',
+              isMe ? 'bg-red-700 hover:bg-red-800' : 'bg-gray-100 hover:bg-gray-200 text-gray-700',
             ].join(' ')}
             aria-label={isPlaying ? 'Pause' : 'Play'}
             title={isPlaying ? 'Pause' : 'Play'}

@@ -1,18 +1,1 @@
-[
-    {
-        "role": "user",
-        "content": "What are you doing?"
-    },
-    {
-        "role": "assistant",
-        "content": "Oh, just hanging out in the digital ether, trying to avoid a software meltdown! How about you, Ihro? Plotting world domination or just contemplating the meaning of life?"
-    },
-    {
-        "role": "user",
-        "content": "Test eins, zwei, drei."
-    },
-    {
-        "role": "assistant",
-        "content": "Test erfolgreich, eins, zwei, drei! Just like a cat walking on a keyboard, we’re both creating some interesting results here. What’s next on your agenda, Ihro?"
-    }
-]
+[]
